@@ -17532,7 +17532,9 @@ var _const = require('./const');
 
 var _random = require('./random');
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireDefault(obj) {
+  return obj && obj.__esModule ? obj : { default: obj };
+}
 
 // prevent default
 
@@ -17553,12 +17555,13 @@ function canvas() {
       SPEED = undefined,
       boat1 = undefined,
       boat2 = undefined,
-      bridge2 = undefined;
+      bridge2 = undefined,
+      plane = undefined;
 
   _pubsub2.default.on('calculationDone', function (result) {
     console.log(1000 * (result.kinetics[0].duration / result.kinetics[2].duration));
     SPEED = {
-      car: 3000 * scale,
+      car: 1400 * scale,
       taxi: 800 * scale,
       bike: 1400 * (result.kinetics[0].duration / result.kinetics[2].duration) * scale
     };
@@ -17573,7 +17576,7 @@ function canvas() {
     create();
   });
 
-  var game = new Phaser.Game((0, _jquery2.default)(window).width(), (0, _jquery2.default)(window).height(), Phaser.AUTO, 'app', { preload: preload, create: create, update: update, render: render });
+  var game = new Phaser.Game((0, _jquery2.default)(window).width(), (0, _jquery2.default)(window).height(), Phaser.CANVAS, 'app', { preload: preload, create: create, update: update, render: render });
 
   function preload() {
     game.load.image('background', 'assets/images/game/background.jpg');
@@ -17588,6 +17591,7 @@ function canvas() {
     game.load.image('boat1', 'assets/images/game/boat1.png');
     game.load.image('boat2', 'assets/images/game/boat2.png');
     game.load.image('bridge2', 'assets/images/game/broad.png');
+    game.load.image('plane', 'assets/images/game/plane.svg');
   }
 
   function create() {
@@ -17613,6 +17617,7 @@ function canvas() {
     taxi = game.add.sprite(_const.START_POS.taxi.x * scale, _const.START_POS.taxi.y * scale, 'taxi');
     bridge = game.add.sprite(_const.START_POS.bridge.x * scale, _const.START_POS.bridge.y * scale, 'bridge');
     airport = game.add.sprite(_const.START_POS.airport.x * scale, _const.START_POS.airport.y * scale, 'airport');
+    plane = game.add.sprite(_const.START_POS.plane.x * scale, _const.START_POS.plane.y * scale, 'plane');
 
     result.scale.setTo(scale * 2);
     result.anchor.set(0.5);
@@ -17636,8 +17641,9 @@ function canvas() {
     // Enable the boats physics
     game.physics.arcade.enable(boat1, Phaser.Physics.ARCADE);
     game.physics.arcade.enable(boat2, Phaser.Physics.ARCADE);
+    game.physics.arcade.enable(plane, Phaser.Physics.ARCADE);
 
-    var spritesArr = [car, train, bike, taxi, bridge, background, airport, boat1, boat2, bridge2];
+    var spritesArr = [car, train, bike, taxi, bridge, background, airport, boat1, boat2, bridge2, plane];
 
     // configure the sprites
     for (var i in spritesArr) {
@@ -17692,9 +17698,12 @@ function canvas() {
     game.world.wrap(boat1, 0, true);
     game.world.wrap(boat2, 0, true);
 
+    // Animate plane
+    plane.body.velocity.x = 500 * scale;
+
     /*====================================
-      =            CAR MOVEMENT          =
-      ====================================*/
+    =            CAR MOVEMENT           =
+    ====================================*/
 
     var carWithinFirst = car.position.y >= _const.CAR_TURN.first.y * scale && car.position.y <= _const.CAR_TURN.first.yTo * scale;
     var carWithinSecond = car.position.y >= _const.CAR_TURN.second.y * scale && car.position.y <= _const.CAR_TURN.second.yTo * scale;
@@ -17705,22 +17714,16 @@ function canvas() {
       // FIRST MOVEMENT POINT
       if (carWithinFirst) {
         var rotation = game.physics.arcade.angleToXY(car, _const.CAR_TURN.first.xTo * scale, _const.CAR_TURN.first.yTo * scale);
-        console.log(rotation);
         var newRot = (rotation - 1.57) * (180 / Math.PI);
         game.add.tween(car).to({ angle: newRot }, 80, Phaser.Easing.Linear.In, true, -1);
-        // car.rotation = rotation - 1.57;
         game.physics.arcade.velocityFromRotation(rotation, SPEED.car * scale, car.body.velocity);
       } else if (carWithinSecond) {
         var rotation = game.physics.arcade.angleToXY(car, _const.CAR_TURN.second.xTo * scale, _const.CAR_TURN.second.yTo * scale);
-        console.log(rotation);
-
-        // car.rotation = (-rotation * -rotation + 0.5);
         var newRot = (rotation - 1.57) * (180 / Math.PI);
         game.add.tween(car).to({ angle: newRot }, 80, Phaser.Easing.Linear.In, true, -1);
         game.physics.arcade.velocityFromRotation(rotation, SPEED.car * scale, car.body.velocity);
       } else if (carWithinThird) {
         var rotation = game.physics.arcade.angleToXY(car, _const.CAR_TURN.third.xTo * scale, _const.CAR_TURN.third.yTo * scale);
-        console.log(rotation);
         var newRot = (rotation - 1.57) * (180 / Math.PI);
         game.add.tween(car).to({ angle: newRot }, 80, Phaser.Easing.Linear.In, true, -1);
         game.physics.arcade.velocityFromRotation(rotation, SPEED.car * scale, car.body.velocity);
@@ -17729,14 +17732,6 @@ function canvas() {
         game.add.tween(car).to({ angle: 0 }, 80, Phaser.Easing.Linear.In, true, -1);
       }
     }
-
-    // if (scrolling.up) {
-
-    //   //  Move to the left
-    //   car.body.velocity.y = -SPEED.car * scale;
-    //   scrolling.up = false;
-    //   scrolling.down = false;
-    // }
 
     /*=====  End of CAR MOVEMENT  ======*/
 
@@ -17892,7 +17887,8 @@ var START_POS = exports.START_POS = {
   airport: { x: 1315, y: 9850 },
   boat1: { x: 800, y: 5800 },
   boat2: { x: 1900, y: 6000 },
-  bridge2: { x: 413, y: 5480 }
+  bridge2: { x: 413, y: 5480 },
+  plane: { x: -5000, y: 2000 }
 };
 
 var BG_HEIGHT = exports.BG_HEIGHT = 11994;
