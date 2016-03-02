@@ -17556,18 +17556,17 @@ function canvas() {
       boat1 = undefined,
       boat2 = undefined,
       bridge2 = undefined,
-      plane = undefined;
+      plane = undefined,
+      traincover1 = undefined,
+      traincover2 = undefined;
 
   _pubsub2.default.on('calculationDone', function (result) {
-    console.log(1000 * (result.kinetics[0].duration / result.kinetics[2].duration));
     SPEED = {
       car: 1800 * scale,
-      taxi: 800 * scale,
+      taxi: 1800 * scale,
       bike: 1800 * (result.kinetics[0].duration / result.kinetics[2].duration) * scale,
-      train: 1800 * (result.kinetics[0].duration / result.kinetics[1].duration) * scale
+      train: 2800 * (result.kinetics[0].duration / result.kinetics[1].duration) * scale
     };
-
-    console.log(result);
   });
 
   var scrolling = { down: false, up: false };
@@ -17593,6 +17592,9 @@ function canvas() {
     game.load.image('boat2', 'assets/images/game/boat2.png');
     game.load.image('bridge2', 'assets/images/game/broad.png');
     game.load.image('plane', 'assets/images/game/plane.svg');
+
+    game.load.image('traincover1', 'assets/images/game/traincover1.png');
+    game.load.image('traincover2', 'assets/images/game/traincover2.png');
   }
 
   function create() {
@@ -17612,9 +17614,11 @@ function canvas() {
     boat1 = game.add.sprite(_const.START_POS.boat1.x * scale, _const.START_POS.boat1.y * scale, 'boat1');
     boat2 = game.add.sprite(_const.START_POS.boat2.x * scale, _const.START_POS.boat2.y * scale, 'boat2');
     bridge2 = game.add.sprite(_const.START_POS.bridge2.x * scale, _const.START_POS.bridge2.y * scale, 'bridge2');
-    car = game.add.sprite(_const.START_POS.car.x * scale, _const.START_POS.car.y * scale, 'car');
     train = game.add.sprite(_const.START_POS.train.x * scale, _const.START_POS.train.y * scale, 'train');
+    traincover1 = game.add.sprite(_const.START_POS.traincover1.x * scale, _const.START_POS.traincover1.y * scale, 'traincover1');
+    traincover2 = game.add.sprite(_const.START_POS.traincover2.x * scale, _const.START_POS.traincover2.y * scale, 'traincover2');
     bike = game.add.sprite(_const.START_POS.bike.x * scale, _const.START_POS.bike.y * scale, 'bike');
+    car = game.add.sprite(_const.START_POS.car.x * scale, _const.START_POS.car.y * scale, 'car');
     taxi = game.add.sprite(_const.START_POS.taxi.x * scale, _const.START_POS.taxi.y * scale, 'taxi');
     bridge = game.add.sprite(_const.START_POS.bridge.x * scale, _const.START_POS.bridge.y * scale, 'bridge');
     airport = game.add.sprite(_const.START_POS.airport.x * scale, _const.START_POS.airport.y * scale, 'airport');
@@ -17644,7 +17648,7 @@ function canvas() {
     game.physics.arcade.enable(boat2, Phaser.Physics.ARCADE);
     game.physics.arcade.enable(plane, Phaser.Physics.ARCADE);
 
-    var spritesArr = [car, train, bike, taxi, bridge, background, airport, boat1, boat2, bridge2, plane];
+    var spritesArr = [car, train, bike, taxi, bridge, background, airport, boat1, boat2, bridge2, plane, traincover1, traincover2];
 
     // configure the sprites
     for (var i in spritesArr) {
@@ -17654,7 +17658,7 @@ function canvas() {
         game.physics.arcade.enable(spritesArr[i], Phaser.Physics.ARCADE);
 
         spritesArr[i].body.maxVelocity.set(400, 400);
-        spritesArr[i].body.drag.set(2500 * scale);
+        spritesArr[i].body.drag.set(2000 * scale);
       }
     }
 
@@ -17807,7 +17811,7 @@ function canvas() {
       } else {
 
         taxi.body.velocity.y = SPEED.taxi * scale;
-        taxi.rotation = 0;
+        game.add.tween(taxi).to({ angle: 0 }, 80, Phaser.Easing.Linear.In, true, -1);
       }
     }
 
@@ -17817,6 +17821,11 @@ function canvas() {
 
     if (scrolling.down) {
       train.body.velocity.y = SPEED.train * scale;
+    }
+
+    if (train.position.y > 1800 * scale && train.position.x < 1000 * scale) {
+      train.position.x = 1330 * scale;
+      train.position.y = 1500 * scale;
     }
 
     scrolling.down = false;
@@ -17888,7 +17897,11 @@ var START_POS = exports.START_POS = {
   boat1: { x: 800, y: 5800 },
   boat2: { x: 1900, y: 6000 },
   bridge2: { x: 413, y: 5480 },
-  plane: { x: -5000, y: 2000 }
+  plane: { x: -5000, y: 2000 },
+
+  traincover1: { x: 700, y: 1456 },
+  traincover2: { x: 1254, y: 1141 }
+
 };
 
 var BG_HEIGHT = exports.BG_HEIGHT = 11994;
