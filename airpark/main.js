@@ -6795,7 +6795,7 @@ $.datepicker.version = "1.10.4";
 
 },{"./core":191,"jquery":193}],193:[function(require,module,exports){
 /*!
- * jQuery JavaScript Library v2.2.1
+ * jQuery JavaScript Library v2.2.0
  * http://jquery.com/
  *
  * Includes Sizzle.js
@@ -6805,7 +6805,7 @@ $.datepicker.version = "1.10.4";
  * Released under the MIT license
  * http://jquery.org/license
  *
- * Date: 2016-02-22T19:11Z
+ * Date: 2016-01-08T20:02Z
  */
 
 (function( global, factory ) {
@@ -6861,7 +6861,7 @@ var support = {};
 
 
 var
-	version = "2.2.1",
+	version = "2.2.0",
 
 	// Define a local copy of jQuery
 	jQuery = function( selector, context ) {
@@ -11275,7 +11275,7 @@ function on( elem, types, selector, data, fn, one ) {
 	if ( fn === false ) {
 		fn = returnFalse;
 	} else if ( !fn ) {
-		return elem;
+		return this;
 	}
 
 	if ( one === 1 ) {
@@ -11924,14 +11924,14 @@ var
 	rscriptTypeMasked = /^true\/(.*)/,
 	rcleanScript = /^\s*<!(?:\[CDATA\[|--)|(?:\]\]|--)>\s*$/g;
 
-// Manipulating tables requires a tbody
 function manipulationTarget( elem, content ) {
-	return jQuery.nodeName( elem, "table" ) &&
-		jQuery.nodeName( content.nodeType !== 11 ? content : content.firstChild, "tr" ) ?
+	if ( jQuery.nodeName( elem, "table" ) &&
+		jQuery.nodeName( content.nodeType !== 11 ? content : content.firstChild, "tr" ) ) {
 
-		elem.getElementsByTagName( "tbody" )[ 0 ] ||
-			elem.appendChild( elem.ownerDocument.createElement( "tbody" ) ) :
-		elem;
+		return elem.getElementsByTagName( "tbody" )[ 0 ] || elem;
+	}
+
+	return elem;
 }
 
 // Replace/restore the type attribute of script elements for safe DOM manipulation
@@ -12438,7 +12438,7 @@ var getStyles = function( elem ) {
 		// FF meanwhile throws on frame elements through "defaultView.getComputedStyle"
 		var view = elem.ownerDocument.defaultView;
 
-		if ( !view || !view.opener ) {
+		if ( !view.opener ) {
 			view = window;
 		}
 
@@ -12587,18 +12587,15 @@ function curCSS( elem, name, computed ) {
 		style = elem.style;
 
 	computed = computed || getStyles( elem );
-	ret = computed ? computed.getPropertyValue( name ) || computed[ name ] : undefined;
-
-	// Support: Opera 12.1x only
-	// Fall back to style even without computed
-	// computed is undefined for elems on document fragments
-	if ( ( ret === "" || ret === undefined ) && !jQuery.contains( elem.ownerDocument, elem ) ) {
-		ret = jQuery.style( elem, name );
-	}
 
 	// Support: IE9
 	// getPropertyValue is only needed for .css('filter') (#12537)
 	if ( computed ) {
+		ret = computed.getPropertyValue( name ) || computed[ name ];
+
+		if ( ret === "" && !jQuery.contains( elem.ownerDocument, elem ) ) {
+			ret = jQuery.style( elem, name );
+		}
 
 		// A tribute to the "awesome hack by Dean Edwards"
 		// Android Browser returns percentage for some values,
@@ -14648,7 +14645,7 @@ jQuery.extend( jQuery.event, {
 				// But now, this "simulate" function is used only for events
 				// for which stopPropagation() is noop, so there is no need for that anymore.
 				//
-				// For the 1.x branch though, guard for "click" and "submit"
+				// For the compat branch though, guard for "click" and "submit"
 				// events is still used, but was moved to jQuery.event.stopPropagation function
 				// because `originalEvent` should point to the original event for the constancy
 				// with other events and for more focused logic
@@ -16418,8 +16415,11 @@ jQuery.fn.extend( {
 			}
 
 			// Add offsetParent borders
-			parentOffset.top += jQuery.css( offsetParent[ 0 ], "borderTopWidth", true );
-			parentOffset.left += jQuery.css( offsetParent[ 0 ], "borderLeftWidth", true );
+			// Subtract offsetParent scroll positions
+			parentOffset.top += jQuery.css( offsetParent[ 0 ], "borderTopWidth", true ) -
+				offsetParent.scrollTop();
+			parentOffset.left += jQuery.css( offsetParent[ 0 ], "borderLeftWidth", true ) -
+				offsetParent.scrollLeft();
 		}
 
 		// Subtract parent offsets and element margins
@@ -17556,17 +17556,17 @@ function canvas() {
       boat1 = undefined,
       boat2 = undefined,
       bridge2 = undefined,
-      plane = undefined;
+      plane = undefined,
+      traincover1 = undefined,
+      traincover2 = undefined;
 
   _pubsub2.default.on('calculationDone', function (result) {
-    console.log(1000 * (result.kinetics[0].duration / result.kinetics[2].duration));
     SPEED = {
-      car: 1400 * scale,
-      taxi: 800 * scale,
-      bike: 1400 * (result.kinetics[0].duration / result.kinetics[2].duration) * scale
+      car: 1800 * scale,
+      taxi: 1800 * scale,
+      bike: 1800 * (result.kinetics[0].duration / result.kinetics[2].duration) * scale,
+      train: 2800 * (result.kinetics[0].duration / result.kinetics[1].duration) * scale
     };
-
-    console.log(result);
   });
 
   var scrolling = { down: false, up: false };
@@ -17592,6 +17592,9 @@ function canvas() {
     game.load.image('boat2', 'assets/images/game/boat2.png');
     game.load.image('bridge2', 'assets/images/game/broad.png');
     game.load.image('plane', 'assets/images/game/plane.svg');
+
+    game.load.image('traincover1', 'assets/images/game/traincover1.png');
+    game.load.image('traincover2', 'assets/images/game/traincover2.png');
   }
 
   function create() {
@@ -17611,9 +17614,11 @@ function canvas() {
     boat1 = game.add.sprite(_const.START_POS.boat1.x * scale, _const.START_POS.boat1.y * scale, 'boat1');
     boat2 = game.add.sprite(_const.START_POS.boat2.x * scale, _const.START_POS.boat2.y * scale, 'boat2');
     bridge2 = game.add.sprite(_const.START_POS.bridge2.x * scale, _const.START_POS.bridge2.y * scale, 'bridge2');
-    car = game.add.sprite(_const.START_POS.car.x * scale, _const.START_POS.car.y * scale, 'car');
     train = game.add.sprite(_const.START_POS.train.x * scale, _const.START_POS.train.y * scale, 'train');
+    traincover1 = game.add.sprite(_const.START_POS.traincover1.x * scale, _const.START_POS.traincover1.y * scale, 'traincover1');
+    traincover2 = game.add.sprite(_const.START_POS.traincover2.x * scale, _const.START_POS.traincover2.y * scale, 'traincover2');
     bike = game.add.sprite(_const.START_POS.bike.x * scale, _const.START_POS.bike.y * scale, 'bike');
+    car = game.add.sprite(_const.START_POS.car.x * scale, _const.START_POS.car.y * scale, 'car');
     taxi = game.add.sprite(_const.START_POS.taxi.x * scale, _const.START_POS.taxi.y * scale, 'taxi');
     bridge = game.add.sprite(_const.START_POS.bridge.x * scale, _const.START_POS.bridge.y * scale, 'bridge');
     airport = game.add.sprite(_const.START_POS.airport.x * scale, _const.START_POS.airport.y * scale, 'airport');
@@ -17643,7 +17648,7 @@ function canvas() {
     game.physics.arcade.enable(boat2, Phaser.Physics.ARCADE);
     game.physics.arcade.enable(plane, Phaser.Physics.ARCADE);
 
-    var spritesArr = [car, train, bike, taxi, bridge, background, airport, boat1, boat2, bridge2, plane];
+    var spritesArr = [car, train, bike, taxi, bridge, background, airport, boat1, boat2, bridge2, plane, traincover1, traincover2];
 
     // configure the sprites
     for (var i in spritesArr) {
@@ -17653,7 +17658,7 @@ function canvas() {
         game.physics.arcade.enable(spritesArr[i], Phaser.Physics.ARCADE);
 
         spritesArr[i].body.maxVelocity.set(400, 400);
-        spritesArr[i].body.drag.set(2500 * scale);
+        spritesArr[i].body.drag.set(2000 * scale);
       }
     }
 
@@ -17790,34 +17795,38 @@ function canvas() {
       // FIRST MOVEMENT POINT
       if (taxiWithinFirst) {
         var rotation = game.physics.arcade.angleToXY(taxi, _const.TAXI_TURN.first.xTo * scale, _const.TAXI_TURN.first.yTo * scale);
-        console.log(rotation);
-        taxi.rotation = rotation - 1.57;
+        var newRot = (rotation - 1.57) * (180 / Math.PI);
+        game.add.tween(taxi).to({ angle: newRot }, 80, Phaser.Easing.Linear.In, true, -1);
+        game.physics.arcade.velocityFromRotation(rotation, SPEED.taxi * scale, taxi.body.velocity);
+      } else if (taxiWithinSecond) {
+        var rotation = game.physics.arcade.angleToXY(taxi, _const.TAXI_TURN.second.xTo * scale, _const.TAXI_TURN.second.yTo * scale);
+        var newRot = (rotation - 1.57) * (180 / Math.PI);
+        game.add.tween(taxi).to({ angle: newRot }, 80, Phaser.Easing.Linear.In, true, -1);
+        game.physics.arcade.velocityFromRotation(rotation, SPEED.taxi * scale, taxi.body.velocity);
+      } else if (taxiWithinThird) {
+        var rotation = game.physics.arcade.angleToXY(taxi, _const.TAXI_TURN.third.xTo * scale, _const.TAXI_TURN.third.yTo * scale);
+        var newRot = (rotation - 1.57) * (180 / Math.PI);
+        game.add.tween(taxi).to({ angle: newRot }, 80, Phaser.Easing.Linear.In, true, -1);
         game.physics.arcade.velocityFromRotation(rotation, SPEED.taxi * scale, taxi.body.velocity);
       } else {
+
         taxi.body.velocity.y = SPEED.taxi * scale;
-        taxi.rotation = 0;
-      }
-
-      // Second movement Point
-      if (taxiWithinSecond) {
-        var rotation = game.physics.arcade.angleToXY(taxi, _const.TAXI_TURN.second.xTo * scale, _const.TAXI_TURN.second.yTo * scale);
-        console.log(rotation);
-
-        // taxi.rotation = (-rotation * -rotation + 0.5);
-        taxi.rotation = rotation - 1.57;
-        game.physics.arcade.velocityFromRotation(rotation, SPEED.taxi * scale, taxi.body.velocity);
-      }
-
-      // Third movement Point
-      if (taxiWithinThird) {
-        var rotation = game.physics.arcade.angleToXY(taxi, _const.TAXI_TURN.third.xTo * scale, _const.TAXI_TURN.third.yTo * scale);
-        console.log(rotation);
-        taxi.rotation = rotation - 1.57;
-        game.physics.arcade.velocityFromRotation(rotation, SPEED.taxi * scale, taxi.body.velocity);
+        game.add.tween(taxi).to({ angle: 0 }, 80, Phaser.Easing.Linear.In, true, -1);
       }
     }
 
-    /*=====  End of BIKE MOVEMENT  ======*/
+    /*=====================================
+    =            train MOVEMENT            =
+    =====================================*/
+
+    if (scrolling.down) {
+      train.body.velocity.y = SPEED.train * scale;
+    }
+
+    if (train.position.y > 1800 * scale && train.position.x < 1000 * scale) {
+      train.position.x = 1330 * scale;
+      train.position.y = 1500 * scale;
+    }
 
     scrolling.down = false;
     scrolling.up = false;
@@ -17888,7 +17897,11 @@ var START_POS = exports.START_POS = {
   boat1: { x: 800, y: 5800 },
   boat2: { x: 1900, y: 6000 },
   bridge2: { x: 413, y: 5480 },
-  plane: { x: -5000, y: 2000 }
+  plane: { x: -5000, y: 2000 },
+
+  traincover1: { x: 700, y: 1456 },
+  traincover2: { x: 1254, y: 1141 }
+
 };
 
 var BG_HEIGHT = exports.BG_HEIGHT = 11994;
