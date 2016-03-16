@@ -6795,7 +6795,7 @@ $.datepicker.version = "1.10.4";
 
 },{"./core":191,"jquery":193}],193:[function(require,module,exports){
 /*!
- * jQuery JavaScript Library v2.2.0
+ * jQuery JavaScript Library v2.2.1
  * http://jquery.com/
  *
  * Includes Sizzle.js
@@ -6805,7 +6805,7 @@ $.datepicker.version = "1.10.4";
  * Released under the MIT license
  * http://jquery.org/license
  *
- * Date: 2016-01-08T20:02Z
+ * Date: 2016-02-22T19:11Z
  */
 
 (function( global, factory ) {
@@ -6861,7 +6861,7 @@ var support = {};
 
 
 var
-	version = "2.2.0",
+	version = "2.2.1",
 
 	// Define a local copy of jQuery
 	jQuery = function( selector, context ) {
@@ -11275,7 +11275,7 @@ function on( elem, types, selector, data, fn, one ) {
 	if ( fn === false ) {
 		fn = returnFalse;
 	} else if ( !fn ) {
-		return this;
+		return elem;
 	}
 
 	if ( one === 1 ) {
@@ -11924,14 +11924,14 @@ var
 	rscriptTypeMasked = /^true\/(.*)/,
 	rcleanScript = /^\s*<!(?:\[CDATA\[|--)|(?:\]\]|--)>\s*$/g;
 
+// Manipulating tables requires a tbody
 function manipulationTarget( elem, content ) {
-	if ( jQuery.nodeName( elem, "table" ) &&
-		jQuery.nodeName( content.nodeType !== 11 ? content : content.firstChild, "tr" ) ) {
+	return jQuery.nodeName( elem, "table" ) &&
+		jQuery.nodeName( content.nodeType !== 11 ? content : content.firstChild, "tr" ) ?
 
-		return elem.getElementsByTagName( "tbody" )[ 0 ] || elem;
-	}
-
-	return elem;
+		elem.getElementsByTagName( "tbody" )[ 0 ] ||
+			elem.appendChild( elem.ownerDocument.createElement( "tbody" ) ) :
+		elem;
 }
 
 // Replace/restore the type attribute of script elements for safe DOM manipulation
@@ -12438,7 +12438,7 @@ var getStyles = function( elem ) {
 		// FF meanwhile throws on frame elements through "defaultView.getComputedStyle"
 		var view = elem.ownerDocument.defaultView;
 
-		if ( !view.opener ) {
+		if ( !view || !view.opener ) {
 			view = window;
 		}
 
@@ -12587,15 +12587,18 @@ function curCSS( elem, name, computed ) {
 		style = elem.style;
 
 	computed = computed || getStyles( elem );
+	ret = computed ? computed.getPropertyValue( name ) || computed[ name ] : undefined;
+
+	// Support: Opera 12.1x only
+	// Fall back to style even without computed
+	// computed is undefined for elems on document fragments
+	if ( ( ret === "" || ret === undefined ) && !jQuery.contains( elem.ownerDocument, elem ) ) {
+		ret = jQuery.style( elem, name );
+	}
 
 	// Support: IE9
 	// getPropertyValue is only needed for .css('filter') (#12537)
 	if ( computed ) {
-		ret = computed.getPropertyValue( name ) || computed[ name ];
-
-		if ( ret === "" && !jQuery.contains( elem.ownerDocument, elem ) ) {
-			ret = jQuery.style( elem, name );
-		}
 
 		// A tribute to the "awesome hack by Dean Edwards"
 		// Android Browser returns percentage for some values,
@@ -14645,7 +14648,7 @@ jQuery.extend( jQuery.event, {
 				// But now, this "simulate" function is used only for events
 				// for which stopPropagation() is noop, so there is no need for that anymore.
 				//
-				// For the compat branch though, guard for "click" and "submit"
+				// For the 1.x branch though, guard for "click" and "submit"
 				// events is still used, but was moved to jQuery.event.stopPropagation function
 				// because `originalEvent` should point to the original event for the constancy
 				// with other events and for more focused logic
@@ -16415,11 +16418,8 @@ jQuery.fn.extend( {
 			}
 
 			// Add offsetParent borders
-			// Subtract offsetParent scroll positions
-			parentOffset.top += jQuery.css( offsetParent[ 0 ], "borderTopWidth", true ) -
-				offsetParent.scrollTop();
-			parentOffset.left += jQuery.css( offsetParent[ 0 ], "borderLeftWidth", true ) -
-				offsetParent.scrollLeft();
+			parentOffset.top += jQuery.css( offsetParent[ 0 ], "borderTopWidth", true );
+			parentOffset.left += jQuery.css( offsetParent[ 0 ], "borderLeftWidth", true );
 		}
 
 		// Subtract parent offsets and element margins
@@ -17360,7 +17360,9 @@ var _config = require('./lib/config.js');
 
 var _config2 = _interopRequireDefault(_config);
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireDefault(obj) {
+	return obj && obj.__esModule ? obj : { default: obj };
+}
 
 var results = function () {
 
@@ -17381,11 +17383,17 @@ var results = function () {
 	var $taxiTime = $el.find('#results-box-taxi .progress__time--text span');
 	var $trainTime = $el.find('#results-box-train .progress__time--text span');
 
+	var $carJoy = $el.find('#results-box-car .progress__joyment--text span');
+	var $bikeJoy = $el.find('#results-box-bike .progress__joyment--text span');
+	var $taxiJoy = $el.find('#results-box-taxi .progress__joyment--text span');
+	var $trainJoy = $el.find('#results-box-train .progress__joyment--text span');
+
 	// global vars
 	var travelers = undefined,
 	    date = undefined,
 	    prices = undefined,
-	    time = undefined;
+	    time = undefined,
+	    originAddress = undefined;
 
 	_pubsub2.default.on('calculationDone', function (data) {
 		calculateStats(data);
@@ -17396,13 +17404,14 @@ var results = function () {
 	function calculateStats(data) {
 		travelers = data.travelers;
 		date = data.date;
+		originAddress = data.kinetics[0].unfiltered.originAddresses[0];
 
 		var car = data.kinetics[0];
 		var train = data.kinetics[1];
 		var bike = data.kinetics[2];
 
 		var carPrice = +(car.distance / 1000) * _config2.default.prices.carKm;
-		var trainPrice = +(train.distance / 1000) * _config2.default.prices.trainKm;
+		var trainPrice = +(train.distance / 1000 * _config2.default.prices.trainKm) * travelers;
 		var taxiPrice = +(car.distance / 1000) * _config2.default.prices.taxiKm;
 
 		prices = {
@@ -17503,6 +17512,79 @@ var results = function () {
 		(0, _jquery2.default)($bikeTime).html((time.bike.duration / 60).toFixed(0) + ' min.');
 		(0, _jquery2.default)($trainTime).html((time.train.duration / 60).toFixed(0) + ' min.');
 		(0, _jquery2.default)($taxiTime).html((time.car.duration / 60).toFixed(0) + ' min.');
+
+		// Append the calculated joyment
+		var comfort = _config2.default.comfort;
+		var _prices = prices;
+		var trainPrice = _prices.trainPrice;
+		var carPrice = _prices.carPrice;
+		var taxiPrice = _prices.taxiPrice;
+		var _time = time;
+		var trainT = _time.train;
+		var bikeT = _time.bike;
+		var carT = _time.car;
+
+		var CAR_JOY = (comfort.car * 100 - carPrice - carT.duration / 60) / 100;
+		var TRAIN_JOY = (comfort.train * 100 - trainPrice - trainT.duration / 60) / 100;
+		var TAXI_JOY = (comfort.taxi * 100 - taxiPrice - carT.duration / 60) / 100;
+		var BIKE_JOY = (comfort.bike * 100 - 0 - bikeT.duration / 60) / 100;
+
+		debugger;
+		(0, _jquery2.default)($carJoy).html(CAR_JOY.toFixed(0));
+		(0, _jquery2.default)($bikeJoy).html(TRAIN_JOY.toFixed(0));
+		(0, _jquery2.default)($trainJoy).html(TAXI_JOY.toFixed(0));
+		(0, _jquery2.default)($taxiJoy).html(BIKE_JOY.toFixed(0));
+
+		addDirectionListners();
+	}
+
+	function addDirectionListners() {
+
+		(0, _jquery2.default)('.show-route').on('click', function (event) {
+			event.preventDefault();
+			(0, _jquery2.default)('#map').removeClass('hidden');
+			(0, _jquery2.default)('#close-button').removeClass('hidden');
+			initMap((0, _jquery2.default)(this).data('trans'));
+		});
+
+		(0, _jquery2.default)('#close-button').on('click', function () {
+			(0, _jquery2.default)('#map').addClass('hidden');
+			(0, _jquery2.default)('#close-button').addClass('hidden');
+		});
+	}
+
+	// Takes the transport mode as param
+	function initMap(mode) {
+
+		// Init the map variables
+		var directionsService = new google.maps.DirectionsService();
+		var directionsDisplay = new google.maps.DirectionsRenderer();
+
+		// set the map center
+		var map = new google.maps.Map(document.getElementById('map'), {
+			zoom: 7,
+			center: { lat: 56.263920, lng: 9.501785 }
+		});
+
+		directionsDisplay.setMap(map);
+
+		// Get directions
+		calculateAndDisplayRoute(directionsService, directionsDisplay, mode);
+	}
+
+	function calculateAndDisplayRoute(directionsService, directionsDisplay, mode) {
+		if (mode === 'BIKE') mode = 'BICYCLING';
+		directionsService.route({
+			origin: originAddress,
+			destination: 'Kastrup, Denmark',
+			travelMode: google.maps.TravelMode[mode]
+		}, function (response, status) {
+			if (status === google.maps.DirectionsStatus.OK) {
+				directionsDisplay.setDirections(response);
+			} else {
+				window.alert('Directions request failed due to ' + status);
+			}
+		});
 	}
 }();
 
@@ -17532,9 +17614,7 @@ var _const = require('./const');
 
 var _random = require('./random');
 
-function _interopRequireDefault(obj) {
-  return obj && obj.__esModule ? obj : { default: obj };
-}
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 // prevent default
 
@@ -17556,17 +17636,17 @@ function canvas() {
       boat1 = undefined,
       boat2 = undefined,
       bridge2 = undefined,
-      plane = undefined,
-      traincover1 = undefined,
-      traincover2 = undefined;
+      plane = undefined;
 
   _pubsub2.default.on('calculationDone', function (result) {
+
     SPEED = {
-      car: 1800 * scale,
-      taxi: 1800 * scale,
-      bike: 1800 * (result.kinetics[0].duration / result.kinetics[2].duration) * scale,
-      train: 2800 * (result.kinetics[0].duration / result.kinetics[1].duration) * scale
+      car: 18000 * scale,
+      taxi: 800 * scale,
+      bike: 1400 * (result.kinetics[0].duration / result.kinetics[2].duration) * scale
     };
+
+    console.log(result);
   });
 
   var scrolling = { down: false, up: false };
@@ -17592,9 +17672,6 @@ function canvas() {
     game.load.image('boat2', 'assets/images/game/boat2.png');
     game.load.image('bridge2', 'assets/images/game/broad.png');
     game.load.image('plane', 'assets/images/game/plane.svg');
-
-    game.load.image('traincover1', 'assets/images/game/traincover1.png');
-    game.load.image('traincover2', 'assets/images/game/traincover2.png');
   }
 
   function create() {
@@ -17614,11 +17691,9 @@ function canvas() {
     boat1 = game.add.sprite(_const.START_POS.boat1.x * scale, _const.START_POS.boat1.y * scale, 'boat1');
     boat2 = game.add.sprite(_const.START_POS.boat2.x * scale, _const.START_POS.boat2.y * scale, 'boat2');
     bridge2 = game.add.sprite(_const.START_POS.bridge2.x * scale, _const.START_POS.bridge2.y * scale, 'bridge2');
-    train = game.add.sprite(_const.START_POS.train.x * scale, _const.START_POS.train.y * scale, 'train');
-    traincover1 = game.add.sprite(_const.START_POS.traincover1.x * scale, _const.START_POS.traincover1.y * scale, 'traincover1');
-    traincover2 = game.add.sprite(_const.START_POS.traincover2.x * scale, _const.START_POS.traincover2.y * scale, 'traincover2');
-    bike = game.add.sprite(_const.START_POS.bike.x * scale, _const.START_POS.bike.y * scale, 'bike');
     car = game.add.sprite(_const.START_POS.car.x * scale, _const.START_POS.car.y * scale, 'car');
+    train = game.add.sprite(_const.START_POS.train.x * scale, _const.START_POS.train.y * scale, 'train');
+    bike = game.add.sprite(_const.START_POS.bike.x * scale, _const.START_POS.bike.y * scale, 'bike');
     taxi = game.add.sprite(_const.START_POS.taxi.x * scale, _const.START_POS.taxi.y * scale, 'taxi');
     bridge = game.add.sprite(_const.START_POS.bridge.x * scale, _const.START_POS.bridge.y * scale, 'bridge');
     airport = game.add.sprite(_const.START_POS.airport.x * scale, _const.START_POS.airport.y * scale, 'airport');
@@ -17648,7 +17723,7 @@ function canvas() {
     game.physics.arcade.enable(boat2, Phaser.Physics.ARCADE);
     game.physics.arcade.enable(plane, Phaser.Physics.ARCADE);
 
-    var spritesArr = [car, train, bike, taxi, bridge, background, airport, boat1, boat2, bridge2, plane, traincover1, traincover2];
+    var spritesArr = [car, train, bike, taxi, bridge, background, airport, boat1, boat2, bridge2, plane];
 
     // configure the sprites
     for (var i in spritesArr) {
@@ -17658,7 +17733,7 @@ function canvas() {
         game.physics.arcade.enable(spritesArr[i], Phaser.Physics.ARCADE);
 
         spritesArr[i].body.maxVelocity.set(400, 400);
-        spritesArr[i].body.drag.set(2000 * scale);
+        spritesArr[i].body.drag.set(2500 * scale);
       }
     }
 
@@ -17753,7 +17828,7 @@ function canvas() {
       // FIRST MOVEMENT POINT
       if (bikeWithinFirst) {
         var rotation = game.physics.arcade.angleToXY(bike, _const.BIKE_TURN.first.xTo * scale, _const.BIKE_TURN.first.yTo * scale);
-        console.log(rotation);
+
         bike.rotation = rotation - 1.57;
         game.physics.arcade.velocityFromRotation(rotation, SPEED.bike * scale, bike.body.velocity);
       } else {
@@ -17764,7 +17839,6 @@ function canvas() {
       // Second movement Point
       if (bikeWithinSecond) {
         var rotation = game.physics.arcade.angleToXY(bike, _const.BIKE_TURN.second.xTo * scale, _const.BIKE_TURN.second.yTo * scale);
-        console.log(rotation);
 
         // bike.rotation = (-rotation * -rotation + 0.5);
         bike.rotation = rotation - 1.57;
@@ -17774,7 +17848,7 @@ function canvas() {
       // Third movement Point
       if (bikeWithinThird) {
         var rotation = game.physics.arcade.angleToXY(bike, _const.BIKE_TURN.third.xTo * scale, _const.BIKE_TURN.third.yTo * scale);
-        console.log(rotation);
+
         bike.rotation = rotation - 1.57;
         game.physics.arcade.velocityFromRotation(rotation, SPEED.bike * scale, bike.body.velocity);
       }
@@ -17795,38 +17869,33 @@ function canvas() {
       // FIRST MOVEMENT POINT
       if (taxiWithinFirst) {
         var rotation = game.physics.arcade.angleToXY(taxi, _const.TAXI_TURN.first.xTo * scale, _const.TAXI_TURN.first.yTo * scale);
-        var newRot = (rotation - 1.57) * (180 / Math.PI);
-        game.add.tween(taxi).to({ angle: newRot }, 80, Phaser.Easing.Linear.In, true, -1);
-        game.physics.arcade.velocityFromRotation(rotation, SPEED.taxi * scale, taxi.body.velocity);
-      } else if (taxiWithinSecond) {
-        var rotation = game.physics.arcade.angleToXY(taxi, _const.TAXI_TURN.second.xTo * scale, _const.TAXI_TURN.second.yTo * scale);
-        var newRot = (rotation - 1.57) * (180 / Math.PI);
-        game.add.tween(taxi).to({ angle: newRot }, 80, Phaser.Easing.Linear.In, true, -1);
-        game.physics.arcade.velocityFromRotation(rotation, SPEED.taxi * scale, taxi.body.velocity);
-      } else if (taxiWithinThird) {
-        var rotation = game.physics.arcade.angleToXY(taxi, _const.TAXI_TURN.third.xTo * scale, _const.TAXI_TURN.third.yTo * scale);
-        var newRot = (rotation - 1.57) * (180 / Math.PI);
-        game.add.tween(taxi).to({ angle: newRot }, 80, Phaser.Easing.Linear.In, true, -1);
+
+        taxi.rotation = rotation - 1.57;
         game.physics.arcade.velocityFromRotation(rotation, SPEED.taxi * scale, taxi.body.velocity);
       } else {
-
         taxi.body.velocity.y = SPEED.taxi * scale;
-        game.add.tween(taxi).to({ angle: 0 }, 80, Phaser.Easing.Linear.In, true, -1);
+        taxi.rotation = 0;
+      }
+
+      // Second movement Point
+      if (taxiWithinSecond) {
+        var rotation = game.physics.arcade.angleToXY(taxi, _const.TAXI_TURN.second.xTo * scale, _const.TAXI_TURN.second.yTo * scale);
+
+        // taxi.rotation = (-rotation * -rotation + 0.5);
+        taxi.rotation = rotation - 1.57;
+        game.physics.arcade.velocityFromRotation(rotation, SPEED.taxi * scale, taxi.body.velocity);
+      }
+
+      // Third movement Point
+      if (taxiWithinThird) {
+        var rotation = game.physics.arcade.angleToXY(taxi, _const.TAXI_TURN.third.xTo * scale, _const.TAXI_TURN.third.yTo * scale);
+
+        taxi.rotation = rotation - 1.57;
+        game.physics.arcade.velocityFromRotation(rotation, SPEED.taxi * scale, taxi.body.velocity);
       }
     }
 
-    /*=====================================
-    =            train MOVEMENT            =
-    =====================================*/
-
-    if (scrolling.down) {
-      train.body.velocity.y = SPEED.train * scale;
-    }
-
-    if (train.position.y > 1800 * scale && train.position.x < 1000 * scale) {
-      train.position.x = 1330 * scale;
-      train.position.y = 1500 * scale;
-    }
+    /*=====  End of BIKE MOVEMENT  ======*/
 
     scrolling.down = false;
     scrolling.up = false;
@@ -17897,11 +17966,7 @@ var START_POS = exports.START_POS = {
   boat1: { x: 800, y: 5800 },
   boat2: { x: 1900, y: 6000 },
   bridge2: { x: 413, y: 5480 },
-  plane: { x: -5000, y: 2000 },
-
-  traincover1: { x: 700, y: 1456 },
-  traincover2: { x: 1254, y: 1141 }
-
+  plane: { x: -5000, y: 2000 }
 };
 
 var BG_HEIGHT = exports.BG_HEIGHT = 11994;
@@ -18008,6 +18073,13 @@ exports.default = {
     trainKm: 1,
     bridge: 240,
     taxiKm: 15
+  },
+
+  comfort: {
+    bike: 30,
+    train: 80,
+    taxi: 100,
+    car: 90
   }
 };
 
@@ -18066,7 +18138,7 @@ exports.default = function () {
   var lastScrollTop = 0;
   (0, _jquery2.default)(window).scroll(function (e) {
     var st = (0, _jquery2.default)(this).scrollTop();
-    console.log(st);
+    // console.log(st);
     if (st > lastScrollTop) {
       e.direction = -1;
       _pubsub2.default.emit('scrollDirection', e);

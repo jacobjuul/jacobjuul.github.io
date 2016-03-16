@@ -2064,6 +2064,11 @@ input {
     #bottom .progress__time--text span {
       color: #082559;
       font-weight: bold; }
+  #bottom .progress__joyment--text {
+    clear: both; }
+    #bottom .progress__joyment--text span {
+      color: #082559;
+      font-weight: bold; }
   #bottom .progress__text--bottom {
     clear: both;
     padding-top: 20px;
@@ -2304,3 +2309,32 @@ input {
   border-top-color: rgba(0, 0, 0, 0.6);
   animation: spinner .6s linear infinite;
   -webkit-animation: spinner .6s linear infinite; }
+
+#map {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 0 !important;
+  display: inline-block;
+  z-index: 400;
+  top: 1000px;
+  padding-bottom: 10vh;
+  padding-top: 10vh;
+  padding-left: 10vh;
+  padding-right: 10vh;
+  background-color: rgba(0, 0, 0, 0.55) !important; }
+
+#map > div {
+  position: relative !important; }
+
+#close-button {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 5em;
+  line-height: 1em;
+  z-index: 401;
+  color: white;
+  font-family: helvetica; }
+  #close-button:hover {
+    color: black; }
