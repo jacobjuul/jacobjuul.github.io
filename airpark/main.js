@@ -17345,7 +17345,7 @@ exports.default = Direction;
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
-	value: true
+  value: true
 });
 
 var _jquery = require('jquery');
@@ -17364,146 +17364,226 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var results = function () {
 
-	// cache the dom
-	var $el = (0, _jquery2.default)('#results-box');
-	var $car = $el.find('#stats-car');
-	var $train = $el.find('#stats-train');
-	var $taxi = $el.find('#stats-taxi');
-	var $bike = $el.find('#stats-bike');
+  // cache the dom
+  var $el = (0, _jquery2.default)('#results-box');
+  var $car = $el.find('#stats-car');
+  var $train = $el.find('#stats-train');
+  var $taxi = $el.find('#stats-taxi');
+  var $bike = $el.find('#stats-bike');
 
-	var $carPrice = $el.find('#results-box-car .progress__price--text span');
-	var $bikePrice = $el.find('#results-box-bike .progress__price--text span');
-	var $taxiPrice = $el.find('#results-box-taxi .progress__price--text span');
-	var $trainPrice = $el.find('#results-box-train .progress__price--text span');
+  var $carPrice = $el.find('#results-box-car .progress__price--text span');
+  var $bikePrice = $el.find('#results-box-bike .progress__price--text span');
+  var $taxiPrice = $el.find('#results-box-taxi .progress__price--text span');
+  var $trainPrice = $el.find('#results-box-train .progress__price--text span');
 
-	var $carTime = $el.find('#results-box-car .progress__time--text span');
-	var $bikeTime = $el.find('#results-box-bike .progress__time--text span');
-	var $taxiTime = $el.find('#results-box-taxi .progress__time--text span');
-	var $trainTime = $el.find('#results-box-train .progress__time--text span');
+  var $carTime = $el.find('#results-box-car .progress__time--text span');
+  var $bikeTime = $el.find('#results-box-bike .progress__time--text span');
+  var $taxiTime = $el.find('#results-box-taxi .progress__time--text span');
+  var $trainTime = $el.find('#results-box-train .progress__time--text span');
 
-	// global vars
-	var travelers = undefined,
-	    date = undefined,
-	    prices = undefined,
-	    time = undefined;
+  var $carJoy = $el.find('#results-box-car .progress__joyment--text span');
+  var $bikeJoy = $el.find('#results-box-bike .progress__joyment--text span');
+  var $taxiJoy = $el.find('#results-box-taxi .progress__joyment--text span');
+  var $trainJoy = $el.find('#results-box-train .progress__joyment--text span');
 
-	_pubsub2.default.on('calculationDone', function (data) {
-		calculateStats(data);
-	});
+  // global vars
+  var travelers = undefined,
+      date = undefined,
+      prices = undefined,
+      time = undefined,
+      originAddress = undefined;
 
-	_pubsub2.default.on('showResults', scrollToResult);
+  _pubsub2.default.on('calculationDone', function (data) {
+    calculateStats(data);
+  });
 
-	function calculateStats(data) {
-		travelers = data.travelers;
-		date = data.date;
+  _pubsub2.default.on('showResults', scrollToResult);
 
-		var car = data.kinetics[0];
-		var train = data.kinetics[1];
-		var bike = data.kinetics[2];
+  function calculateStats(data) {
+    travelers = data.travelers;
+    date = data.date;
+    originAddress = data.kinetics[0].unfiltered.originAddresses[0];
 
-		var carPrice = +(car.distance / 1000) * _config2.default.prices.carKm;
-		var trainPrice = +(train.distance / 1000) * _config2.default.prices.trainKm;
-		var taxiPrice = +(car.distance / 1000) * _config2.default.prices.taxiKm;
+    var car = data.kinetics[0];
+    var train = data.kinetics[1];
+    var bike = data.kinetics[2];
 
-		prices = {
-			carPrice: carPrice,
-			trainPrice: trainPrice,
-			taxiPrice: taxiPrice
-		};
+    var carPrice = +(car.distance / 1000) * _config2.default.prices.carKm;
+    var trainPrice = +(train.distance / 1000 * _config2.default.prices.trainKm) * travelers;
+    var taxiPrice = +(car.distance / 1000) * _config2.default.prices.taxiKm;
 
-		time = {
-			car: car,
-			train: train,
-			bike: bike
-		};
+    prices = {
+      carPrice: carPrice,
+      trainPrice: trainPrice,
+      taxiPrice: taxiPrice
+    };
 
-		console.log(prices);
+    time = {
+      car: car,
+      train: train,
+      bike: bike
+    };
 
-		// events.emit('showResults', []);
-	}
+    console.log(prices);
 
-	function scrollToResult() {
-		// scroll to the results section
-		(0, _jquery2.default)('html, body').animate({
-			scrollTop: (0, _jquery2.default)("#results").offset().top
-		}, 1000);
+    // events.emit('showResults', []);
+  }
 
-		// when the animation is finsihed
-		// then animate the bars
-		setTimeout(function () {
-			animateBars();
-		}, 1250);
-	}
+  function scrollToResult() {
+    // scroll to the results section
+    (0, _jquery2.default)('html, body').animate({
+      scrollTop: (0, _jquery2.default)("#results").offset().top
+    }, 1000);
 
-	function animateBars() {
+    // when the animation is finsihed
+    // then animate the bars
+    setTimeout(function () {
+      animateBars();
+    }, 1250);
+  }
 
-		var relativeTime = undefined;
-		var relativeCost = undefined;
+  function animateBars() {
 
-		if (time.car.duration > time.train.duration && time.car.duration > time.bike.duration) {
-			// car is slowest
-			relativeTime = {
-				car: '100%',
-				bike: time.bike.duration / time.car.duration * 100 + '%',
-				train: time.train.duration / time.car.duration * 100 + '%'
-			};
-		}
+    var relativeTime = undefined;
+    var relativeCost = undefined;
 
-		if (time.bike.duration > time.car.duration && time.bike.duration > time.train.duration) {
-			// bike is slowest
-			relativeTime = {
-				bike: '100%',
-				car: time.car.duration / time.bike.duration * 100 + '%',
-				train: time.train.duration / time.bike.duration * 100 + '%'
-			};
-		}
+    if (time.car.duration > time.train.duration && time.car.duration > time.bike.duration) {
+      // car is slowest
+      relativeTime = {
+        car: '100%',
+        bike: time.bike.duration / time.car.duration * 100 + '%',
+        train: time.train.duration / time.car.duration * 100 + '%'
+      };
+    }
 
-		if (time.train.duration > time.car.duration && time.train.duration > time.bike.duration) {
-			//train is slowest
-			relativeTime = {
-				train: '100%',
-				bike: time.bike.duration / time.train.duration * 100 + '%',
-				car: time.car.duration / time.train.duration * 100 + '%'
-			};
-		}
+    if (time.bike.duration > time.car.duration && time.bike.duration > time.train.duration) {
+      // bike is slowest
+      relativeTime = {
+        bike: '100%',
+        car: time.car.duration / time.bike.duration * 100 + '%',
+        train: time.train.duration / time.bike.duration * 100 + '%'
+      };
+    }
 
-		animateThis('#stats-car', relativeTime.car, '.time');
-		animateThis('#stats-car', '97%', '.comfort');
-		animateThis('#stats-car', '60%', '.price');
-		animateThis('#stats-bike', relativeTime.bike, '.time');
-		animateThis('#stats-bike', '30%', '.comfort');
-		animateThis('#stats-bike', '1%', '.price');
-		animateThis('#stats-train', relativeTime.train, '.time');
-		animateThis('#stats-train', '85%', '.comfort');
-		animateThis('#stats-train', '60%', '.price');
-		animateThis('#stats-taxi', relativeTime.car, '.time');
-		animateThis('#stats-taxi', '100%', '.comfort');
-		animateThis('#stats-taxi', '40%', '.price');
+    if (time.train.duration > time.car.duration && time.train.duration > time.bike.duration) {
+      //train is slowest
+      relativeTime = {
+        train: '100%',
+        bike: time.bike.duration / time.train.duration * 100 + '%',
+        car: time.car.duration / time.train.duration * 100 + '%'
+      };
+    }
 
-		appendResults();
-	}
+    animateThis('#stats-car', relativeTime.car, '.time');
+    animateThis('#stats-car', '97%', '.comfort');
+    animateThis('#stats-car', '60%', '.price');
+    animateThis('#stats-bike', relativeTime.bike, '.time');
+    animateThis('#stats-bike', '30%', '.comfort');
+    animateThis('#stats-bike', '1%', '.price');
+    animateThis('#stats-train', relativeTime.train, '.time');
+    animateThis('#stats-train', '85%', '.comfort');
+    animateThis('#stats-train', '60%', '.price');
+    animateThis('#stats-taxi', relativeTime.car, '.time');
+    animateThis('#stats-taxi', '100%', '.comfort');
+    animateThis('#stats-taxi', '40%', '.price');
 
-	function animateThis(Id, toWidth, meterClass) {
-		var meter = (0, _jquery2.default)(Id + ' ' + meterClass).find('.meter');
-		meter.animate({
-			width: toWidth
-		}, 500);
-	}
+    appendResults();
+  }
 
-	function appendResults() {
+  function animateThis(Id, toWidth, meterClass) {
+    var meter = (0, _jquery2.default)(Id + ' ' + meterClass).find('.meter');
+    meter.animate({
+      width: toWidth
+    }, 500);
+  }
 
-		// Append the calculated prices
-		(0, _jquery2.default)($carPrice).html(prices.carPrice.toFixed(0) + ' Kr.');
-		(0, _jquery2.default)($bikePrice).html(0 + ' Kr.');
-		(0, _jquery2.default)($trainPrice).html(prices.trainPrice.toFixed(0) + ' Kr.');
-		(0, _jquery2.default)($taxiPrice).html(prices.taxiPrice.toFixed(0) + ' Kr.');
+  function appendResults() {
 
-		// Append the calculated time
-		(0, _jquery2.default)($carTime).html((time.car.duration / 60).toFixed(0) + '\tmin.');
-		(0, _jquery2.default)($bikeTime).html((time.bike.duration / 60).toFixed(0) + ' min.');
-		(0, _jquery2.default)($trainTime).html((time.train.duration / 60).toFixed(0) + ' min.');
-		(0, _jquery2.default)($taxiTime).html((time.car.duration / 60).toFixed(0) + ' min.');
-	}
+    // Append the calculated prices
+    (0, _jquery2.default)($carPrice).html(prices.carPrice.toFixed(0) + ' Kr.');
+    (0, _jquery2.default)($bikePrice).html(0 + ' Kr.');
+    (0, _jquery2.default)($trainPrice).html(prices.trainPrice.toFixed(0) + ' Kr.');
+    (0, _jquery2.default)($taxiPrice).html(prices.taxiPrice.toFixed(0) + ' Kr.');
+
+    // Append the calculated time
+    (0, _jquery2.default)($carTime).html((time.car.duration / 60).toFixed(0) + '\tmin.');
+    (0, _jquery2.default)($bikeTime).html((time.bike.duration / 60).toFixed(0) + ' min.');
+    (0, _jquery2.default)($trainTime).html((time.train.duration / 60).toFixed(0) + ' min.');
+    (0, _jquery2.default)($taxiTime).html((time.car.duration / 60).toFixed(0) + ' min.');
+
+    // Append the calculated joyment
+    var comfort = _config2.default.comfort;
+    var _prices = prices;
+    var trainPrice = _prices.trainPrice;
+    var carPrice = _prices.carPrice;
+    var taxiPrice = _prices.taxiPrice;
+    var _time = time;
+    var trainT = _time.train;
+    var bikeT = _time.bike;
+    var carT = _time.car;
+
+
+    var CAR_JOY = (comfort.car * 100 - carPrice - carT.duration / 60) / 100;
+    var TRAIN_JOY = (comfort.train * 100 - trainPrice - trainT.duration / 60) / 100;
+    var TAXI_JOY = (comfort.taxi * 100 - taxiPrice - carT.duration / 60) / 100;
+    var BIKE_JOY = (comfort.bike * 100 - 0 - bikeT.duration / 60) / 100;
+
+    (0, _jquery2.default)($carJoy).html(CAR_JOY.toFixed(0));
+    (0, _jquery2.default)($bikeJoy).html(TRAIN_JOY.toFixed(0));
+    (0, _jquery2.default)($trainJoy).html(TAXI_JOY.toFixed(0));
+    (0, _jquery2.default)($taxiJoy).html(BIKE_JOY.toFixed(0));
+
+    addDirectionListners();
+  }
+
+  function addDirectionListners() {
+
+    (0, _jquery2.default)('.show-route').on('click', function (event) {
+      event.preventDefault();
+      (0, _jquery2.default)('#map').removeClass('hidden');
+      (0, _jquery2.default)('#close-button').removeClass('hidden');
+      initMap((0, _jquery2.default)(this).data('trans'));
+    });
+
+    (0, _jquery2.default)('#close-button').on('click', function () {
+      (0, _jquery2.default)('#map').addClass('hidden');
+      (0, _jquery2.default)('#close-button').addClass('hidden');
+    });
+  }
+
+  // Takes the transport mode as param
+  function initMap(mode) {
+
+    // Init the map variables
+    var directionsService = new google.maps.DirectionsService();
+    var directionsDisplay = new google.maps.DirectionsRenderer();
+
+    // set the map center
+    var map = new google.maps.Map(document.getElementById('map'), {
+      zoom: 7,
+      center: { lat: 56.263920, lng: 9.501785 }
+    });
+
+    directionsDisplay.setMap(map);
+
+    // Get directions
+    calculateAndDisplayRoute(directionsService, directionsDisplay, mode);
+  }
+
+  function calculateAndDisplayRoute(directionsService, directionsDisplay, mode) {
+    if (mode === 'BIKE') mode = 'BICYCLING';
+    directionsService.route({
+      origin: originAddress,
+      destination: 'Kastrup, Denmark',
+      travelMode: google.maps.TravelMode[mode]
+    }, function (response, status) {
+      if (status === google.maps.DirectionsStatus.OK) {
+        directionsDisplay.setDirections(response);
+      } else {
+        window.alert('Directions request failed due to ' + status);
+      }
+    });
+  }
 }();
 
 exports.default = results;
@@ -17532,9 +17612,7 @@ var _const = require('./const');
 
 var _random = require('./random');
 
-function _interopRequireDefault(obj) {
-  return obj && obj.__esModule ? obj : { default: obj };
-}
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 // prevent default
 
@@ -17561,6 +17639,7 @@ function canvas() {
       traincover2 = undefined;
 
   _pubsub2.default.on('calculationDone', function (result) {
+
     SPEED = {
       car: 1800 * scale,
       taxi: 1800 * scale,
@@ -17753,7 +17832,7 @@ function canvas() {
       // FIRST MOVEMENT POINT
       if (bikeWithinFirst) {
         var rotation = game.physics.arcade.angleToXY(bike, _const.BIKE_TURN.first.xTo * scale, _const.BIKE_TURN.first.yTo * scale);
-        console.log(rotation);
+
         bike.rotation = rotation - 1.57;
         game.physics.arcade.velocityFromRotation(rotation, SPEED.bike * scale, bike.body.velocity);
       } else {
@@ -17764,7 +17843,6 @@ function canvas() {
       // Second movement Point
       if (bikeWithinSecond) {
         var rotation = game.physics.arcade.angleToXY(bike, _const.BIKE_TURN.second.xTo * scale, _const.BIKE_TURN.second.yTo * scale);
-        console.log(rotation);
 
         // bike.rotation = (-rotation * -rotation + 0.5);
         bike.rotation = rotation - 1.57;
@@ -17774,7 +17852,7 @@ function canvas() {
       // Third movement Point
       if (bikeWithinThird) {
         var rotation = game.physics.arcade.angleToXY(bike, _const.BIKE_TURN.third.xTo * scale, _const.BIKE_TURN.third.yTo * scale);
-        console.log(rotation);
+
         bike.rotation = rotation - 1.57;
         game.physics.arcade.velocityFromRotation(rotation, SPEED.bike * scale, bike.body.velocity);
       }
@@ -18008,6 +18086,13 @@ exports.default = {
     trainKm: 1,
     bridge: 240,
     taxiKm: 15
+  },
+
+  comfort: {
+    bike: 30,
+    train: 80,
+    taxi: 100,
+    car: 90
   }
 };
 
@@ -18066,7 +18151,7 @@ exports.default = function () {
   var lastScrollTop = 0;
   (0, _jquery2.default)(window).scroll(function (e) {
     var st = (0, _jquery2.default)(this).scrollTop();
-    console.log(st);
+    // console.log(st);
     if (st > lastScrollTop) {
       e.direction = -1;
       _pubsub2.default.emit('scrollDirection', e);

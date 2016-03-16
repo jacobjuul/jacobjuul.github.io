@@ -2064,6 +2064,11 @@ input {
     #bottom .progress__time--text span {
       color: #082559;
       font-weight: bold; }
+  #bottom .progress__joyment--text {
+    clear: both; }
+    #bottom .progress__joyment--text span {
+      color: #082559;
+      font-weight: bold; }
   #bottom .progress__text--bottom {
     clear: both;
     padding-top: 20px;
@@ -2183,12 +2188,15 @@ input {
     height: 70px;
     background: #FCCB00;
     transform: rotate(45deg);
-    z-index: 0; }
+    z-index: 1; }
   #bottom .grass--bottom {
     position: absolute;
     width: 100%;
     bottom: -7px;
     left: 0; }
+  #bottom #conclusion .conclusion__content .sky--top {
+    position: absolute;
+    width: 100%; }
   #bottom #conclusion .conclusion__content .sky-full--right {
     top: 200px;
     opacity: 1;
@@ -2204,6 +2212,7 @@ input {
     padding-top: 100px;
     font-family: 'AvenirBold';
     position: relative;
+    text-transform: uppercase;
     z-index: 2;
     letter-spacing: 2px; }
     @media screen and (min-width: 900px) {
@@ -2217,7 +2226,6 @@ input {
     display: block;
     padding: 20px;
     font-size: 1.2em;
-    text-align: center;
     position: relative;
     z-index: 2;
     color: #fff; }
@@ -2240,8 +2248,18 @@ input {
       cursor: pointer; }
   #bottom #conclusion .conclusion__content #seperator {
     display: block;
+    position: relative;
     margin: 0 auto;
-    padding: 20px 0; }
+    padding: 20px 0;
+    z-index: 2; }
+  #bottom #conclusion .conclusion__content .copyright {
+    position: absolute;
+    color: #fff;
+    width: 100%;
+    text-align: center;
+    bottom: 10px;
+    font-size: .9em;
+    font-family: 'AvenirMedium'; }
 
 @media only screen and (min-width: 968px) {
   .result__description {
@@ -2271,16 +2289,16 @@ input {
     transform: rotate(360deg); } }
 
 .spinner {
-  min-width: 24px;
-  min-height: 24px; }
+  min-width: 40px;
+  min-height: 40px; }
 
 .spinner:before {
   content: 'Loading…';
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 24px;
-  height: 24px;
+  width: 40px;
+  height: 40px;
   margin-top: -10px;
   margin-left: -10px; }
 
@@ -2291,3 +2309,32 @@ input {
   border-top-color: rgba(0, 0, 0, 0.6);
   animation: spinner .6s linear infinite;
   -webkit-animation: spinner .6s linear infinite; }
+
+#map {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 0 !important;
+  display: inline-block;
+  z-index: 400;
+  top: 1000px;
+  padding-bottom: 10vh;
+  padding-top: 10vh;
+  padding-left: 10vh;
+  padding-right: 10vh;
+  background-color: rgba(0, 0, 0, 0.55) !important; }
+
+#map > div {
+  position: relative !important; }
+
+#close-button {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 5em;
+  line-height: 1em;
+  z-index: 401;
+  color: white;
+  font-family: helvetica; }
+  #close-button:hover {
+    color: black; }
