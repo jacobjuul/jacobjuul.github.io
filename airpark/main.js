@@ -17529,7 +17529,6 @@ var results = function () {
 		var TAXI_JOY = (comfort.taxi * 100 - taxiPrice - carT.duration / 60) / 100;
 		var BIKE_JOY = (comfort.bike * 100 - 0 - bikeT.duration / 60) / 100;
 
-		debugger;
 		(0, _jquery2.default)($carJoy).html(CAR_JOY.toFixed(0));
 		(0, _jquery2.default)($bikeJoy).html(TRAIN_JOY.toFixed(0));
 		(0, _jquery2.default)($trainJoy).html(TAXI_JOY.toFixed(0));
@@ -17614,7 +17613,9 @@ var _const = require('./const');
 
 var _random = require('./random');
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireDefault(obj) {
+  return obj && obj.__esModule ? obj : { default: obj };
+}
 
 // prevent default
 
@@ -17641,8 +17642,8 @@ function canvas() {
   _pubsub2.default.on('calculationDone', function (result) {
 
     SPEED = {
-      car: 18000 * scale,
-      taxi: 800 * scale,
+      car: 1400 * scale,
+      taxi: 1300 * scale,
       bike: 1400 * (result.kinetics[0].duration / result.kinetics[2].duration) * scale
     };
 
