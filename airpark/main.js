@@ -17643,10 +17643,10 @@ function canvas() {
   _pubsub2.default.on('calculationDone', function (result) {
 
     SPEED = {
-      car: 1800 * scale,
-      taxi: 1800 * scale * 0.95,
-      bike: 1800 * (result.kinetics[0].duration / result.kinetics[2].duration) * scale,
-      train: 1800 * (result.kinetics[0].duration / result.kinetics[1].duration) * scale
+      car: 1000,
+      taxi: 1000 * 0.95,
+      bike: 1000 * (result.kinetics[0].duration / result.kinetics[2].duration),
+      train: 1000 * (result.kinetics[0].duration / result.kinetics[1].duration)
     };
   });
 
@@ -17743,7 +17743,7 @@ function canvas() {
         game.physics.arcade.enable(spritesArr[i], Phaser.Physics.ARCADE);
 
         spritesArr[i].body.maxVelocity.set(2000, 2000);
-        spritesArr[i].body.drag.set(2000 * scale);
+        spritesArr[i].body.drag.set(1500);
       }
     }
 
@@ -17787,6 +17787,7 @@ function canvas() {
     boat2.body.velocity.x = 120 * scale;
     game.world.wrap(boat1, 0, true);
     game.world.wrap(boat2, 0, true);
+    game.world.wrap(plane, 0, true);
 
     // Animate plane
     plane.body.velocity.x = 500 * scale;
