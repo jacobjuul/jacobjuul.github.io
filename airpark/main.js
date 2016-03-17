@@ -17612,7 +17612,9 @@ var _const = require('./const');
 
 var _random = require('./random');
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireDefault(obj) {
+  return obj && obj.__esModule ? obj : { default: obj };
+}
 
 // prevent default
 
@@ -17795,7 +17797,6 @@ function canvas() {
     /*====================================
     =            CAR MOVEMENT           =
     ====================================*/
-
     var carWithinFirst = car.position.y >= _const.CAR_TURN.first.y * scale && car.position.y <= _const.CAR_TURN.first.yTo * scale;
     var carWithinSecond = car.position.y >= _const.CAR_TURN.second.y * scale && car.position.y <= _const.CAR_TURN.second.yTo * scale;
     var carWithinThird = car.position.y >= _const.CAR_TURN.third.y * scale && car.position.y <= _const.CAR_TURN.third.yTo * scale;
