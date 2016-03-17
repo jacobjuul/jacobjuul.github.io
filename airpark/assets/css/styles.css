@@ -1791,7 +1791,8 @@ input {
     text-align: center;
     position: relative;
     top: 50%;
-    transform: translateY(-50%); }
+    -webkit-transform: translateY(-50%);
+            transform: translateY(-50%); }
     #header #hero #hero-text .avenir-medium {
       font-family: 'AvenirMedium';
       font-size: 7vw;
@@ -1826,6 +1827,7 @@ input {
     -webkit-animation-iteration-count: infinite;
     -webkit-animation-timing-function: ease-in-out;
     -webkit-animation-delay: 1s;
+    -webkit-animation-name: pulse;
     animation-name: pulse; }
     #header #hero .scroll .scroll-logo {
       width: 60px;
@@ -1835,7 +1837,6 @@ input {
   max-width: 100%;
   margin-left: auto;
   margin-right: auto;
-  padding: 2em 0 0 0;
   height: 100vh;
   width: 100vw;
   position: relative; }
@@ -1933,6 +1934,13 @@ input {
   .scroll {
     font-size: 1.4em;
     bottom: 4vw !important; }
+  .assets-left--animation {
+    -webkit-animation-name: loading;
+            animation-name: loading;
+    -webkit-animation-duration: 4s;
+            animation-duration: 4s;
+    -webkit-animation-timing-function: ease;
+            animation-timing-function: ease; }
   .assets-left {
     display: block;
     float: left;
@@ -1946,6 +1954,7 @@ input {
     .assets-left:last-child {
       margin-right: 0; }
     .assets-left .asset-left {
+      -webkit-transform: rotate(270deg);
       transform: rotate(270deg);
       position: relative;
       width: 40px;
@@ -2187,6 +2196,7 @@ input {
     width: 70px;
     height: 70px;
     background: #FCCB00;
+    -webkit-transform: rotate(45deg);
     transform: rotate(45deg);
     z-index: 1; }
   #bottom .grass--bottom {
@@ -2271,22 +2281,42 @@ input {
     position: absolute;
     left: 50%;
     top: 50%;
+    -webkit-transform: translate(-50%, -50%);
     transform: translate(-50%, -50%);
     z-index: 2; }
   .progress__text--padding {
     font-size: 1.1em !important; } }
 
-@keyframes pulse {
+@-webkit-keyframes pulse {
   from {
+    -webkit-transform: scale3d(1, 1, 1);
     transform: scale3d(1, 1, 1); }
   50% {
+    -webkit-transform: scale3d(1.1, 1.1, 1.1);
     transform: scale3d(1.1, 1.1, 1.1); }
   to {
+    -webkit-transform: scale3d(1, 1, 1);
+    transform: scale3d(1, 1, 1); } }
+
+@keyframes pulse {
+  from {
+    -webkit-transform: scale3d(1, 1, 1);
+    transform: scale3d(1, 1, 1); }
+  50% {
+    -webkit-transform: scale3d(1.1, 1.1, 1.1);
+    transform: scale3d(1.1, 1.1, 1.1); }
+  to {
+    -webkit-transform: scale3d(1, 1, 1);
     transform: scale3d(1, 1, 1); } }
 
 @keyframes spinner {
   to {
-    transform: rotate(360deg); } }
+    -webkit-transform: rotate(360deg);
+            transform: rotate(360deg); } }
+
+@-webkit-keyframes spinner {
+  to {
+    -webkit-transform: rotate(360deg); } }
 
 .spinner {
   min-width: 40px;
@@ -2309,6 +2339,18 @@ input {
   border-top-color: rgba(0, 0, 0, 0.6);
   animation: spinner .6s linear infinite;
   -webkit-animation: spinner .6s linear infinite; }
+
+@-webkit-keyframes loading {
+  from {
+    left: -20px; }
+  to {
+    left: 100%; } }
+
+@keyframes loading {
+  from {
+    left: -20px; }
+  to {
+    left: 100%; } }
 
 #map {
   height: 100%;

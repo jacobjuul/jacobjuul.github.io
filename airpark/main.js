@@ -17612,9 +17612,7 @@ var _const = require('./const');
 
 var _random = require('./random');
 
-function _interopRequireDefault(obj) {
-  return obj && obj.__esModule ? obj : { default: obj };
-}
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 // prevent default
 
@@ -18253,6 +18251,12 @@ window.onload = function (event) {
 	(0, _jquery2.default)('#calculator-calculate').on('click', function (event) {
 		// start spinner animation
 		(0, _jquery2.default)('#calculator').addClass('spinner');
+
+		// animate VEHICLES
+		(0, _jquery2.default)('.assets-left').addClass('assets-left--animation');
+		setTimeout(function () {
+			return (0, _jquery2.default)('.assets-left').removeClass('assets-left--animation');
+		}, 4000);
 	});
 
 	// when the calulation is done, stop the spinner
