@@ -17612,7 +17612,9 @@ var _const = require('./const');
 
 var _random = require('./random');
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireDefault(obj) {
+  return obj && obj.__esModule ? obj : { default: obj };
+}
 
 // prevent default
 
@@ -17636,15 +17638,17 @@ function canvas() {
       bridge2 = undefined,
       plane = undefined,
       traincover1 = undefined,
-      traincover2 = undefined;
+      traincover2 = undefined,
+      traincover3 = undefined,
+      traincover4 = undefined;
 
   _pubsub2.default.on('calculationDone', function (result) {
 
     SPEED = {
       car: 1800 * scale,
-      taxi: 1800 * scale,
+      taxi: 1800 * scale * 0.95,
       bike: 1800 * (result.kinetics[0].duration / result.kinetics[2].duration) * scale,
-      train: 2800 * (result.kinetics[0].duration / result.kinetics[1].duration) * scale
+      train: 1800 * (result.kinetics[0].duration / result.kinetics[1].duration) * scale
     };
   });
 
@@ -17660,9 +17664,14 @@ function canvas() {
   function preload() {
     game.load.image('background', 'assets/images/game/background.jpg');
     game.load.image('car', 'assets/images/game/car.png');
-    game.load.image('train', 'assets/images/game/train.png');
+
     game.load.image('taxi', 'assets/images/game/taxi.png');
     game.load.image('bike', 'assets/images/game/bike.png');
+    game.load.image('train', 'assets/images/game/train.png');
+    game.load.image('traincover1', 'assets/images/game/traincover1.png');
+    game.load.image('traincover2', 'assets/images/game/traincover2.png');
+    game.load.image('traincover3', 'assets/images/game/traincover3.png');
+    game.load.image('traincover4', 'assets/images/game/traincover4.png');
     game.load.image('cloud', 'assets/images/game/sky.png');
     game.load.image('result', 'assets/images/game/result.png');
     game.load.image('bridge', 'assets/images/game/bridge.png');
@@ -17671,9 +17680,6 @@ function canvas() {
     game.load.image('boat2', 'assets/images/game/boat2.png');
     game.load.image('bridge2', 'assets/images/game/broad.png');
     game.load.image('plane', 'assets/images/game/plane.svg');
-
-    game.load.image('traincover1', 'assets/images/game/traincover1.png');
-    game.load.image('traincover2', 'assets/images/game/traincover2.png');
   }
 
   function create() {
@@ -17696,6 +17702,8 @@ function canvas() {
     train = game.add.sprite(_const.START_POS.train.x * scale, _const.START_POS.train.y * scale, 'train');
     traincover1 = game.add.sprite(_const.START_POS.traincover1.x * scale, _const.START_POS.traincover1.y * scale, 'traincover1');
     traincover2 = game.add.sprite(_const.START_POS.traincover2.x * scale, _const.START_POS.traincover2.y * scale, 'traincover2');
+    traincover3 = game.add.sprite(_const.START_POS.traincover3.x * scale, _const.START_POS.traincover3.y * scale, 'traincover3');
+    traincover4 = game.add.sprite(_const.START_POS.traincover4.x * scale, _const.START_POS.traincover4.y * scale, 'traincover4');
     bike = game.add.sprite(_const.START_POS.bike.x * scale, _const.START_POS.bike.y * scale, 'bike');
     car = game.add.sprite(_const.START_POS.car.x * scale, _const.START_POS.car.y * scale, 'car');
     taxi = game.add.sprite(_const.START_POS.taxi.x * scale, _const.START_POS.taxi.y * scale, 'taxi');
@@ -17727,7 +17735,7 @@ function canvas() {
     game.physics.arcade.enable(boat2, Phaser.Physics.ARCADE);
     game.physics.arcade.enable(plane, Phaser.Physics.ARCADE);
 
-    var spritesArr = [car, train, bike, taxi, bridge, background, airport, boat1, boat2, bridge2, plane, traincover1, traincover2];
+    var spritesArr = [car, train, bike, taxi, bridge, background, airport, boat1, boat2, bridge2, plane, traincover1, traincover2, traincover3, traincover4];
 
     // configure the sprites
     for (var i in spritesArr) {
@@ -17736,7 +17744,7 @@ function canvas() {
         spritesArr[i].anchor.set(0.5);
         game.physics.arcade.enable(spritesArr[i], Phaser.Physics.ARCADE);
 
-        spritesArr[i].body.maxVelocity.set(400, 400);
+        spritesArr[i].body.maxVelocity.set(2000, 2000);
         spritesArr[i].body.drag.set(2000 * scale);
       }
     }
@@ -17766,9 +17774,9 @@ function canvas() {
   }
 
   function update() {
-    game.physics.arcade.collide(car, train);
-    game.physics.arcade.collide(car, bike);
-    game.physics.arcade.collide(car, taxi);
+    // game.physics.arcade.collide(car, train);
+    // game.physics.arcade.collide(car, bike);
+    // game.physics.arcade.collide(car, taxi);
 
     // ANiMATE CLOUDS
     for (var i = 0; i < clouds.length; i++) {
@@ -17899,11 +17907,23 @@ function canvas() {
 
     if (scrolling.down) {
       train.body.velocity.y = SPEED.train * scale;
+      if (train.position.y > 4800 * scale && train.position.y < 7500 * scale) {
+        train.body.velocity.y = SPEED.train * scale * 0.77;
+      } else if (train.position.y > 7500 * scale && train.position.y < 10300 * scale) {
+        train.body.velocity.y = SPEED.train * scale;
+      }
     }
 
     if (train.position.y > 1800 * scale && train.position.x < 1000 * scale) {
       train.position.x = 1330 * scale;
       train.position.y = 1500 * scale;
+    }
+
+    if (train.position.y > 4800 * scale && train.position.y < 7500 * scale) {
+      train.alpha = 0;
+      train.position.x = 1555 * scale;
+    } else {
+      train.alpha = 1;
     }
 
     scrolling.down = false;
@@ -17920,12 +17940,17 @@ function canvas() {
     if (bike.position.y > _const.START_POS.airport.y * scale + 200 * scale) {
       bike.alpha = 0;
     }
+
+    if (train.position.y > 10300 * scale) {
+      train.body.velocity.y = 0;
+    }
   }
 
   function render() {
-    // game.debug.spriteCoords(car, 32, 500);
-
-    // game.debug.body(car);
+    // game.debug.spriteCoords(train, 32, 500);
+    //
+    // // game.debug.body(car);
+    // game.debug.body(train);
     // game.debug.spriteInfo(car, 30, 30);
   }
 }
@@ -17978,7 +18003,9 @@ var START_POS = exports.START_POS = {
   plane: { x: -5000, y: 2000 },
 
   traincover1: { x: 700, y: 1456 },
-  traincover2: { x: 1254, y: 1141 }
+  traincover2: { x: 1254, y: 1141 },
+  traincover3: { x: 1242, y: 4467 },
+  traincover4: { x: 1465, y: 7159 }
 
 };
 
