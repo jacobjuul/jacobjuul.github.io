@@ -1872,23 +1872,54 @@ input {
     font-size: 1.4rem;
     color: #082559;
     font-weight: bold; }
-  #header #calculator #calculator-inputs #calculator-address {
-    margin-left: 17.05961%;
-    float: left;
-    display: block;
-    margin-right: 2.35765%;
-    width: 31.76157%; }
-    #header #calculator #calculator-inputs #calculator-address:last-child {
-      margin-right: 0; }
-  #header #calculator #calculator-inputs #calculator-travelers,
-  #header #calculator #calculator-inputs #calculator-date {
-    float: left;
-    display: block;
-    margin-right: 2.35765%;
-    width: 14.70196%; }
-    #header #calculator #calculator-inputs #calculator-travelers:last-child,
-    #header #calculator #calculator-inputs #calculator-date:last-child {
-      margin-right: 0; }
+  #header #calculator #calculator-inputs {
+    width: 85%; }
+    #header #calculator #calculator-inputs #calculator-address {
+      margin-left: 17.05961%;
+      float: left;
+      display: block;
+      margin-right: 2.35765%;
+      width: 31.76157%; }
+      #header #calculator #calculator-inputs #calculator-address:last-child {
+        margin-right: 0; }
+      @media only screen and (max-width: 600px) {
+        #header #calculator #calculator-inputs #calculator-address {
+          float: left;
+          display: block;
+          margin-right: 2.35765%;
+          width: 100%;
+          margin-left: 8.5298%; }
+          #header #calculator #calculator-inputs #calculator-address:last-child {
+            margin-right: 0; } }
+    @media only screen and (max-width: 600px) {
+      #header #calculator #calculator-inputs #calculator-travelers {
+        margin-left: 8.5298%;
+        float: left;
+        display: block;
+        margin-right: 2.35765%;
+        width: 100%; }
+        #header #calculator #calculator-inputs #calculator-travelers:last-child {
+          margin-right: 0; } }
+    #header #calculator #calculator-inputs #calculator-travelers,
+    #header #calculator #calculator-inputs #calculator-date {
+      float: left;
+      display: block;
+      margin-right: 2.35765%;
+      width: 14.70196%; }
+      #header #calculator #calculator-inputs #calculator-travelers:last-child,
+      #header #calculator #calculator-inputs #calculator-date:last-child {
+        margin-right: 0; }
+      @media only screen and (max-width: 600px) {
+        #header #calculator #calculator-inputs #calculator-travelers,
+        #header #calculator #calculator-inputs #calculator-date {
+          margin-left: 8.5298%;
+          float: left;
+          display: block;
+          margin-right: 2.35765%;
+          width: 100%; }
+          #header #calculator #calculator-inputs #calculator-travelers:last-child,
+          #header #calculator #calculator-inputs #calculator-date:last-child {
+            margin-right: 0; } }
   #header #calculator #calculator-calculate {
     margin-left: 17.05961%;
     float: left;

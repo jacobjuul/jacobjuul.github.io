@@ -17616,8 +17616,6 @@ function _interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : { default: obj };
 }
 
-// prevent default
-
 // All constants are in this file.
 function canvas() {
 
@@ -17753,6 +17751,12 @@ function canvas() {
     game.camera.follow(car);
 
     game.input.mouse.mouseWheelCallback = mouseWheel;
+
+    _pubsub2.default.on('playState', function (value) {
+      document.addEventListener('touchmove', function (e) {
+        scrolling.down = true;
+      }, false);
+    });
   }
 
   function mouseWheel(event) {
@@ -18033,7 +18037,9 @@ var _main = require('./main.js');
 
 var _main2 = _interopRequireDefault(_main);
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireDefault(obj) {
+	return obj && obj.__esModule ? obj : { default: obj };
+}
 
 var gameState = gameState || {};
 
@@ -18050,6 +18056,7 @@ exports.default = gameState = {
 		header.classList.add('hidden');
 		bottom.classList.add('hidden');
 		(0, _jquery2.default)(document).scrollTop(0);
+		_pubsub2.default.emit('playState', true);
 	},
 	showResults: function showResults() {
 		document.removeEventListener('mousewheel', this.preventDefaultFunc);
