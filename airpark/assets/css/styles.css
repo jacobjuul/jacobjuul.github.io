@@ -2470,7 +2470,7 @@ input {
     #gameStats .stats__block--transport .transport__bars {
       display: block;
       height: 0.8vw;
-      width: 7vw;
+      width: 0vw;
       margin-bottom: 0.1vw; }
     #gameStats .stats__block--transport .transport__bars--comfort {
       background: #EEC237; }
